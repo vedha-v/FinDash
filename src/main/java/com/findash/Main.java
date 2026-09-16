@@ -1,21 +1,36 @@
 package com.findash;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+import com.findash.model.Transaction;
 
-public class Main extends Application {
+import java.time.LocalDate;
+
+public class Main extends javafx.application.Application {
 
     @Override
-    public void start(Stage stage) {
+    public void start(javafx.stage.Stage stage) {
 
-        Label title = new Label("FinDash");
+        Transaction transaction = new Transaction(
+                1,
+                LocalDate.now(),
+                "Grocery Shopping",
+                -750.50,
+                "Food"
+        );
 
-        StackPane root = new StackPane(title);
+        System.out.println("Transaction: "
+                + transaction.getDescription());
 
-        Scene scene = new Scene(root, 900, 600);
+        System.out.println("Amount: "
+                + transaction.getAmount());
+
+        javafx.scene.control.Label title =
+                new javafx.scene.control.Label("FinDash");
+
+        javafx.scene.layout.StackPane root =
+                new javafx.scene.layout.StackPane(title);
+
+        javafx.scene.Scene scene =
+                new javafx.scene.Scene(root, 900, 600);
 
         stage.setTitle("FinDash - Finance Dashboard");
         stage.setScene(scene);
