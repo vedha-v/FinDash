@@ -1,5 +1,5 @@
 package com.findash;
-
+import com.findash.repository.DatabaseInitializer;
 import com.findash.model.Transaction;
 
 import java.time.LocalDate;
@@ -8,6 +8,14 @@ public class Main extends javafx.application.Application {
 
     @Override
     public void start(javafx.stage.Stage stage) {
+
+        try {
+    DatabaseInitializer.initialize();
+    System.out.println("Database initialized successfully.");
+} catch (Exception e) {
+    System.out.println("Database initialization failed.");
+    e.printStackTrace();
+}
 
         Transaction transaction = new Transaction(
                 1,
