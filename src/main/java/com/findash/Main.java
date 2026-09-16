@@ -1,6 +1,8 @@
 package com.findash;
 import com.findash.repository.DatabaseInitializer;
 import com.findash.model.Transaction;
+import com.findash.repository.TransactionRepository;
+import java.sql.SQLException ;
 
 import java.time.LocalDate;
 
@@ -18,12 +20,21 @@ public class Main extends javafx.application.Application {
 }
 
         Transaction transaction = new Transaction(
-                1,
-                LocalDate.now(),
-                "Grocery Shopping",
-                -750.50,
-                "Food"
-        );
+        LocalDate.now(),
+        "Grocery Shopping",
+        -750.50,
+        "Food"
+);
+
+        TransactionRepository repository = new TransactionRepository();
+
+        try {
+    repository.save(transaction);
+    System.out.println("Transaction saved successfully.");
+} catch (SQLException e) {
+    System.out.println("Failed to save transaction.");
+    e.printStackTrace();
+}
 
         System.out.println("Transaction: "
                 + transaction.getDescription());

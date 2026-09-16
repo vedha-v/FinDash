@@ -23,6 +23,17 @@ public class Transaction {
         this.amount = amount;
         this.category = category;
     }
+    public Transaction(
+        LocalDate date,
+        String description,
+        double amount,
+        String category) {
+
+    this.date = date;
+    this.description = description;
+    this.amount = amount;
+    this.category = category;
+}
 
     public int getId() {
         return id;
