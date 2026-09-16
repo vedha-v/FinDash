@@ -3,7 +3,7 @@ import com.findash.repository.DatabaseInitializer;
 import com.findash.model.Transaction;
 import com.findash.repository.TransactionRepository;
 import java.sql.SQLException ;
-
+import java.util.List;
 import java.time.LocalDate;
 
 public class Main extends javafx.application.Application {
@@ -29,8 +29,21 @@ public class Main extends javafx.application.Application {
         TransactionRepository repository = new TransactionRepository();
 
         try {
-    repository.save(transaction);
-    System.out.println("Transaction saved successfully.");
+    List<Transaction> transactions =
+            repository.findAll();
+
+    System.out.println("Transactions in database:");
+
+    for (Transaction t : transactions) {
+        System.out.println(
+                t.getDate()
+                + " | "
+                + t.getDescription()
+                + " | "
+                + t.getAmount()
+                + " | "
+                + t.getCategory()
+        );}
 } catch (SQLException e) {
     System.out.println("Failed to save transaction.");
     e.printStackTrace();
@@ -59,4 +72,5 @@ public class Main extends javafx.application.Application {
     public static void main(String[] args) {
         launch(args);
     }
+
 }
