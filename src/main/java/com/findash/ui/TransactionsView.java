@@ -28,6 +28,7 @@ public class TransactionsView {
     private final TransactionRepository repository;
     private final DashboardView dashboardView;
     private final BudgetView budgetView;
+    private final AnalyticsView analyticsView;
 
     private final DatePicker datePicker;
     private final TextField descriptionField;
@@ -37,12 +38,18 @@ public class TransactionsView {
     private final Button addButton;
     private final Button updateButton;
         private final Button deleteButton;
+        
 
-    public TransactionsView(DashboardView dashboardView,BudgetView budgetView) {
+    public TransactionsView(
+        DashboardView dashboardView,
+        BudgetView budgetView,
+        AnalyticsView analyticsView) {
 
-        this.dashboardView = dashboardView;
-        this.budgetView=budgetView;
-        repository = new TransactionRepository();
+    this.dashboardView = dashboardView;
+    this.budgetView = budgetView;
+    this.analyticsView = analyticsView;
+
+    repository = new TransactionRepository();
 
         table = new TableView<>();
 
@@ -235,6 +242,8 @@ public class TransactionsView {
             loadTransactions();
             dashboardView.refresh();
             budgetView.refresh();
+            analyticsView.refresh();
+
 
             System.out.println(
                     "Transaction added successfully."
@@ -333,6 +342,7 @@ public class TransactionsView {
             loadTransactions();
             dashboardView.refresh();
             budgetView.refresh();
+            analyticsView.refresh();
 
             System.out.println(
                     "Transaction updated successfully."
@@ -401,6 +411,7 @@ public class TransactionsView {
                             loadTransactions();
                             dashboardView.refresh();
                             budgetView.refresh();
+                            analyticsView.refresh();
 
 
                             System.out.println(

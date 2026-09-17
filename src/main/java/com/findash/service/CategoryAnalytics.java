@@ -19,7 +19,7 @@ public class CategoryAnalytics {
             if (transaction.getAmount() < 0) {
 
                 String category =
-                        transaction.getCategory();
+                        transaction.getCategory().trim().toLowerCase();
 
                 double amount =
                         Math.abs(transaction.getAmount());

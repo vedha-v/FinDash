@@ -6,6 +6,10 @@ import com.findash.service.CategoryAnalytics;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -22,6 +26,7 @@ public class AnalyticsView {
     private final CategoryAnalytics analytics;
 
     private final TableView<CategorySpending> table;
+    private final BarChart<String, Number> chart;
 
     public AnalyticsView() {
 
@@ -29,6 +34,27 @@ public class AnalyticsView {
         analytics = new CategoryAnalytics();
 
         table = new TableView<>();
+
+        CategoryAxis xAxis =
+                new CategoryAxis();
+
+        NumberAxis yAxis =
+                new NumberAxis();
+
+        xAxis.setLabel("Category");
+        yAxis.setLabel("Amount Spent (₹)");
+
+        chart =
+                new BarChart<>(
+                        xAxis,
+                        yAxis
+                );
+
+        chart.setTitle(
+                "Spending by Category"
+        );
+
+        chart.setLegendVisible(false);
 
         createColumns();
         refresh();
@@ -75,16 +101,36 @@ public class AnalyticsView {
                     FXCollections.observableArrayList()
             );
 
+            chart.getData().clear();
+
+            XYChart.Series<String, Number> series =
+                    new XYChart.Series<>();
+
             for (Map.Entry<String, Double> entry :
                     spending.entrySet()) {
 
+                String category =
+                        entry.getKey();
+
+                double amount =
+                        entry.getValue();
+
                 table.getItems().add(
                         new CategorySpending(
-                                entry.getKey(),
-                                entry.getValue()
+                                category,
+                                amount
+                        )
+                );
+
+                series.getData().add(
+                        new XYChart.Data<>(
+                                category,
+                                amount
                         )
                 );
             }
+
+            chart.getData().add(series);
 
         } catch (SQLException e) {
 
@@ -120,6 +166,7 @@ public class AnalyticsView {
                         15,
                         heading,
                         description,
+                        chart,
                         table
                 );
 

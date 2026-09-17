@@ -6,7 +6,6 @@ import com.findash.ui.BudgetView;
 import com.findash.ui.DashboardView;
 import com.findash.ui.AnalyticsView;
 
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -34,18 +33,25 @@ public class Main extends Application {
 
             e.printStackTrace();
         }
-          // Create our two main screens
+
         DashboardView dashboardView =
                 new DashboardView();
-         BudgetView budgetView =
-        new BudgetView();
+
+        BudgetView budgetView =
+                new BudgetView();
+
+        AnalyticsView analyticsView =
+                new AnalyticsView();
 
         TransactionsView transactionsView =
-                new TransactionsView(dashboardView, budgetView);
-AnalyticsView analyticsView =
-        new AnalyticsView();
+                new TransactionsView(
+                        dashboardView,
+                        budgetView,
+                        analyticsView
+                );
 
         // Create tabs
+
         Tab dashboardTab =
                 new Tab(
                         "Dashboard",
@@ -57,43 +63,45 @@ AnalyticsView analyticsView =
                         "Transactions",
                         transactionsView.getView()
                 );
+
+        Tab budgetTab =
+                new Tab(
+                        "Budgets",
+                        budgetView.getView()
+                );
+
         Tab analyticsTab =
-                 new Tab(
+                new Tab(
                         "Analytics",
                         analyticsView.getView()
-        );
+                );
 
         // Prevent tabs from being closed
+
         dashboardTab.setClosable(false);
         transactionsTab.setClosable(false);
+        budgetTab.setClosable(false);
         analyticsTab.setClosable(false);
 
-     
+        TabPane tabPane =
+                new TabPane(
+                        dashboardTab,
+                        transactionsTab,
+                        budgetTab,
+                        analyticsTab
+                );
 
-Tab budgetTab =
-        new Tab(
-                "Budgets",
-                budgetView.getView()
-        );
-
-TabPane tabPane = new TabPane(
-        dashboardTab,
-        transactionsTab,
-        budgetTab,
-        analyticsTab
-);
-
-
-        
-
-         Scene scene =
+        Scene scene =
                 new Scene(
                         tabPane,
                         900,
                         600
                 );
 
-        stage.setTitle("FinDash - Finance Dashboard");
+        stage.setTitle(
+                "FinDash - Finance Dashboard"
+        );
+
         stage.setScene(scene);
         stage.show();
     }
