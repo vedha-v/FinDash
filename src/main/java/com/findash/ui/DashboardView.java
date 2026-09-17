@@ -4,6 +4,8 @@ import com.findash.model.Transaction;
 import com.findash.repository.TransactionRepository;
 import com.findash.service.FinanceSummary;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -16,18 +18,18 @@ public class DashboardView {
     private final TransactionRepository repository;
     private final FinanceSummary summary;
 
-    private final Label incomeLabel;
-    private final Label expenseLabel;
-    private final Label balanceLabel;
+    private final Label incomeValue;
+    private final Label expenseValue;
+    private final Label balanceValue;
 
     public DashboardView() {
 
         repository = new TransactionRepository();
         summary = new FinanceSummary();
 
-        incomeLabel = new Label("Income: ₹0.00");
-        expenseLabel = new Label("Expenses: ₹0.00");
-        balanceLabel = new Label("Balance: ₹0.00");
+        incomeValue = new Label("₹0.00");
+        expenseValue = new Label("₹0.00");
+        balanceValue = new Label("₹0.00");
 
         loadSummary();
     }
@@ -48,16 +50,16 @@ public class DashboardView {
             double balance =
                     summary.calculateBalance(transactions);
 
-            incomeLabel.setText(
-                    String.format("Income: ₹%.2f", income)
+            incomeValue.setText(
+                    String.format("₹%.2f", income)
             );
 
-            expenseLabel.setText(
-                    String.format("Expenses: ₹%.2f", expenses)
+            expenseValue.setText(
+                    String.format("₹%.2f", expenses)
             );
 
-            balanceLabel.setText(
-                    String.format("Balance: ₹%.2f", balance)
+            balanceValue.setText(
+                    String.format("₹%.2f", balance)
             );
 
         } catch (SQLException e) {
@@ -70,19 +72,100 @@ public class DashboardView {
         }
     }
 
-    public VBox getView() {
+    private VBox createCard(
+            String title,
+            Label value) {
 
-        HBox summaryCards = new HBox(
-                30,
-                incomeLabel,
-                expenseLabel,
-                balanceLabel
+        Label titleLabel =
+                new Label(title);
+
+        titleLabel.setStyle(
+                "-fx-font-size: 16px; " +
+                "-fx-font-weight: bold;"
         );
 
-        VBox layout = new VBox(
-                20,
-                new Label("Financial Summary"),
-                summaryCards
+        value.setStyle(
+                "-fx-font-size: 24px; " +
+                "-fx-font-weight: bold;"
+        );
+
+        VBox card =
+                new VBox(
+                        10,
+                        titleLabel,
+                        value
+                );
+
+        card.setPadding(
+                new Insets(20)
+        );
+
+        card.setAlignment(
+                Pos.CENTER_LEFT
+        );
+
+        card.setPrefWidth(240);
+        card.setPrefHeight(120);
+
+        card.setStyle(
+                "-fx-background-color: white; " +
+                "-fx-background-radius: 10; " +
+                "-fx-border-color: #dddddd; " +
+                "-fx-border-radius: 10;"
+        );
+
+        return card;
+    }
+
+    public VBox getView() {
+
+        Label heading =
+                new Label("Financial Dashboard");
+
+        heading.setStyle(
+                "-fx-font-size: 28px; " +
+                "-fx-font-weight: bold;"
+        );
+
+        VBox incomeCard =
+                createCard(
+                        "Total Income",
+                        incomeValue
+                );
+
+        VBox expenseCard =
+                createCard(
+                        "Total Expenses",
+                        expenseValue
+                );
+
+        VBox balanceCard =
+                createCard(
+                        "Current Balance",
+                        balanceValue
+                );
+
+        HBox cards =
+                new HBox(
+                        20,
+                        incomeCard,
+                        expenseCard,
+                        balanceCard
+                );
+
+        cards.setAlignment(
+                Pos.CENTER_LEFT
+        );
+
+        VBox layout =
+                new VBox(
+                        25,
+                        heading,
+                        cards
+                );
+
+        layout.setPadding(
+                new Insets(30)
         );
 
         return layout;
