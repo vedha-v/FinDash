@@ -2,13 +2,14 @@ package com.findash.ui;
 
 import com.findash.model.Transaction;
 import com.findash.repository.TransactionRepository;
+import com.findash.service.TransactionFilter;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -26,32 +27,90 @@ public class TransactionsView {
 
     private final TableView<Transaction> table;
     private final TransactionRepository repository;
+
     private final DashboardView dashboardView;
     private final BudgetView budgetView;
     private final AnalyticsView analyticsView;
 
+    // Transaction input fields
     private final DatePicker datePicker;
     private final TextField descriptionField;
     private final TextField amountField;
     private final TextField categoryField;
 
+    // Transaction buttons
     private final Button addButton;
     private final Button updateButton;
-        private final Button deleteButton;
-        
+    private final Button deleteButton;
+
+    // Filtering
+    private final TransactionFilter transactionFilter;
+    private final TextField searchField;
+    private final ComboBox<String> categoryFilter;
+    private final DatePicker fromDateFilter;
+    private final DatePicker toDateFilter;
+
 
     public TransactionsView(
-        DashboardView dashboardView,
-        BudgetView budgetView,
-        AnalyticsView analyticsView) {
+            DashboardView dashboardView,
+            BudgetView budgetView,
+            AnalyticsView analyticsView) {
 
-    this.dashboardView = dashboardView;
-    this.budgetView = budgetView;
-    this.analyticsView = analyticsView;
+        this.dashboardView = dashboardView;
+        this.budgetView = budgetView;
+        this.analyticsView = analyticsView;
 
-    repository = new TransactionRepository();
+        repository =
+                new TransactionRepository();
 
-        table = new TableView<>();
+        transactionFilter =
+                new TransactionFilter();
+
+
+        // --------------------------------
+        // Filter controls
+        // --------------------------------
+
+        searchField =
+                new TextField();
+
+        searchField.setPromptText(
+                "Search description..."
+        );
+
+        categoryFilter =
+                new ComboBox<>();
+
+        categoryFilter.getItems().add(
+                "All"
+        );
+
+        categoryFilter.setValue(
+                "All"
+        );
+
+        fromDateFilter =
+                new DatePicker();
+
+        fromDateFilter.setPromptText(
+                "From date"
+        );
+
+        toDateFilter =
+                new DatePicker();
+
+        toDateFilter.setPromptText(
+                "To date"
+        );
+
+
+        // --------------------------------
+        // Table
+        // --------------------------------
+
+        table =
+                new TableView<>();
+
 
         // --------------------------------
         // Table columns
@@ -69,6 +128,7 @@ public class TransactionsView {
         TableColumn<Transaction, Double> amountColumn =
                 new TableColumn<>("Amount");
 
+
         dateColumn.setCellValueFactory(
                 new PropertyValueFactory<>("date")
         );
@@ -85,6 +145,7 @@ public class TransactionsView {
                 new PropertyValueFactory<>("amount")
         );
 
+
         table.getColumns().addAll(
                 dateColumn,
                 descriptionColumn,
@@ -92,20 +153,35 @@ public class TransactionsView {
                 amountColumn
         );
 
+
         // --------------------------------
         // Input fields
         // --------------------------------
 
-        datePicker = new DatePicker();
+        datePicker =
+                new DatePicker();
 
-        descriptionField = new TextField();
-        descriptionField.setPromptText("Description");
+        descriptionField =
+                new TextField();
 
-        amountField = new TextField();
-        amountField.setPromptText("Amount");
+        descriptionField.setPromptText(
+                "Description"
+        );
 
-        categoryField = new TextField();
-        categoryField.setPromptText("Category");
+        amountField =
+                new TextField();
+
+        amountField.setPromptText(
+                "Amount"
+        );
+
+        categoryField =
+                new TextField();
+
+        categoryField.setPromptText(
+                "Category"
+        );
+
 
         // --------------------------------
         // Buttons
@@ -120,6 +196,7 @@ public class TransactionsView {
         deleteButton =
                 new Button("Delete Selected");
 
+
         addButton.setOnAction(
                 event -> addTransaction()
         );
@@ -132,6 +209,29 @@ public class TransactionsView {
                 event -> deleteTransaction()
         );
 
+
+        // --------------------------------
+        // Filter listeners
+        // --------------------------------
+
+        searchField.textProperty().addListener(
+                (observable, oldValue, newValue) ->
+                        loadTransactions()
+        );
+
+        categoryFilter.setOnAction(
+                event -> loadTransactions()
+        );
+
+        fromDateFilter.setOnAction(
+                event -> loadTransactions()
+        );
+
+        toDateFilter.setOnAction(
+                event -> loadTransactions()
+        );
+
+
         // --------------------------------
         // Table selection
         // --------------------------------
@@ -139,13 +239,15 @@ public class TransactionsView {
         table.getSelectionModel()
                 .selectedItemProperty()
                 .addListener(
-                        (observable, oldTransaction,
+                        (observable,
+                         oldTransaction,
                          selectedTransaction) -> {
 
                             if (selectedTransaction != null) {
 
                                 datePicker.setValue(
-                                        selectedTransaction.getDate()
+                                        selectedTransaction
+                                                .getDate()
                                 );
 
                                 descriptionField.setText(
@@ -168,8 +270,15 @@ public class TransactionsView {
                         }
                 );
 
+
+        // --------------------------------
+        // Initial data loading
+        // --------------------------------
+
+        loadCategoryFilter();
         loadTransactions();
     }
+
 
     // --------------------------------
     // Add transaction
@@ -189,6 +298,7 @@ public class TransactionsView {
         String category =
                 categoryField.getText().trim();
 
+
         if (date == null ||
                 description.isEmpty() ||
                 amountText.isEmpty() ||
@@ -201,12 +311,15 @@ public class TransactionsView {
             return;
         }
 
+
         double amount;
 
         try {
 
             amount =
-                    Double.parseDouble(amountText);
+                    Double.parseDouble(
+                            amountText
+                    );
 
         } catch (NumberFormatException e) {
 
@@ -217,6 +330,7 @@ public class TransactionsView {
             return;
         }
 
+
         if (amount == 0) {
 
             showError(
@@ -226,6 +340,7 @@ public class TransactionsView {
             return;
         }
 
+
         Transaction transaction =
                 new Transaction(
                         date,
@@ -234,12 +349,16 @@ public class TransactionsView {
                         category
                 );
 
+
         try {
 
             repository.save(transaction);
 
             clearForm();
+
+            loadCategoryFilter();
             loadTransactions();
+
             dashboardView.refresh();
             budgetView.refresh();
             analyticsView.refresh();
@@ -259,6 +378,7 @@ public class TransactionsView {
         }
     }
 
+
     // --------------------------------
     // Update transaction
     // --------------------------------
@@ -269,6 +389,7 @@ public class TransactionsView {
                 table.getSelectionModel()
                         .getSelectedItem();
 
+
         if (selectedTransaction == null) {
 
             showError(
@@ -277,6 +398,7 @@ public class TransactionsView {
 
             return;
         }
+
 
         LocalDate date =
                 datePicker.getValue();
@@ -290,6 +412,7 @@ public class TransactionsView {
         String category =
                 categoryField.getText().trim();
 
+
         if (date == null ||
                 description.isEmpty() ||
                 amountText.isEmpty() ||
@@ -302,12 +425,15 @@ public class TransactionsView {
             return;
         }
 
+
         double amount;
 
         try {
 
             amount =
-                    Double.parseDouble(amountText);
+                    Double.parseDouble(
+                            amountText
+                    );
 
         } catch (NumberFormatException e) {
 
@@ -318,6 +444,7 @@ public class TransactionsView {
             return;
         }
 
+
         if (amount == 0) {
 
             showError(
@@ -327,10 +454,21 @@ public class TransactionsView {
             return;
         }
 
+
         selectedTransaction.setDate(date);
-        selectedTransaction.setDescription(description);
-        selectedTransaction.setAmount(amount);
-        selectedTransaction.setCategory(category);
+
+        selectedTransaction.setDescription(
+                description
+        );
+
+        selectedTransaction.setAmount(
+                amount
+        );
+
+        selectedTransaction.setCategory(
+                category
+        );
+
 
         try {
 
@@ -339,10 +477,14 @@ public class TransactionsView {
             );
 
             clearForm();
+
+            loadCategoryFilter();
             loadTransactions();
+
             dashboardView.refresh();
             budgetView.refresh();
             analyticsView.refresh();
+
 
             System.out.println(
                     "Transaction updated successfully."
@@ -358,6 +500,7 @@ public class TransactionsView {
         }
     }
 
+
     // --------------------------------
     // Delete transaction
     // --------------------------------
@@ -368,6 +511,7 @@ public class TransactionsView {
                 table.getSelectionModel()
                         .getSelectedItem();
 
+
         if (selectedTransaction == null) {
 
             showError(
@@ -376,6 +520,7 @@ public class TransactionsView {
 
             return;
         }
+
 
         Alert confirmation =
                 new Alert(
@@ -394,6 +539,7 @@ public class TransactionsView {
                 selectedTransaction.getDescription()
         );
 
+
         confirmation.showAndWait()
                 .ifPresent(response -> {
 
@@ -408,7 +554,10 @@ public class TransactionsView {
                             );
 
                             clearForm();
+
+                            loadCategoryFilter();
                             loadTransactions();
+
                             dashboardView.refresh();
                             budgetView.refresh();
                             analyticsView.refresh();
@@ -430,6 +579,7 @@ public class TransactionsView {
                 });
     }
 
+
     // --------------------------------
     // Load transactions
     // --------------------------------
@@ -441,22 +591,97 @@ public class TransactionsView {
             List<Transaction> transactions =
                     repository.findAll();
 
-            ObservableList<Transaction> data =
-                    FXCollections.observableArrayList(
-                            transactions
+            List<Transaction> filtered =
+                    transactionFilter.filter(
+                            transactions,
+                            searchField.getText(),
+                            categoryFilter.getValue(),
+                            fromDateFilter.getValue(),
+                            toDateFilter.getValue()
                     );
 
-            table.setItems(data);
+            table.setItems(
+                    FXCollections.observableArrayList(
+                            filtered
+                    )
+            );
 
         } catch (SQLException e) {
 
-            showError(
+            System.out.println(
                     "Failed to load transactions."
             );
 
             e.printStackTrace();
         }
     }
+
+
+    // --------------------------------
+    // Load category filter
+    // --------------------------------
+
+    private void loadCategoryFilter() {
+
+        try {
+
+            List<Transaction> transactions =
+                    repository.findAll();
+
+            String currentCategory =
+                    categoryFilter.getValue();
+
+
+            categoryFilter.getItems().clear();
+
+            categoryFilter.getItems().add(
+                    "All"
+            );
+
+
+            for (Transaction transaction :
+                    transactions) {
+
+                String category =
+                        transaction.getCategory();
+
+                if (!categoryFilter
+                        .getItems()
+                        .contains(category)) {
+
+                    categoryFilter
+                            .getItems()
+                            .add(category);
+                }
+            }
+
+
+            if (currentCategory != null &&
+                    categoryFilter
+                            .getItems()
+                            .contains(currentCategory)) {
+
+                categoryFilter.setValue(
+                        currentCategory
+                );
+
+            } else {
+
+                categoryFilter.setValue(
+                        "All"
+                );
+            }
+
+        } catch (SQLException e) {
+
+            System.out.println(
+                    "Failed to load categories."
+            );
+
+            e.printStackTrace();
+        }
+    }
+
 
     // --------------------------------
     // Clear form
@@ -465,19 +690,24 @@ public class TransactionsView {
     private void clearForm() {
 
         datePicker.setValue(null);
+
         descriptionField.clear();
+
         amountField.clear();
+
         categoryField.clear();
 
         table.getSelectionModel()
                 .clearSelection();
     }
 
+
     // --------------------------------
     // Error dialog
     // --------------------------------
 
-    private void showError(String message) {
+    private void showError(
+            String message) {
 
         Alert alert =
                 new Alert(
@@ -490,24 +720,44 @@ public class TransactionsView {
 
         alert.setHeaderText(null);
 
-        alert.setContentText(message);
+        alert.setContentText(
+                message
+        );
 
         alert.showAndWait();
     }
 
-       // --------------------------------
+
+    // --------------------------------
     // UI
     // --------------------------------
 
     public VBox getView() {
 
         Label heading =
-                new Label("Transaction Management");
+                new Label(
+                        "Transaction Management"
+                );
 
         heading.setStyle(
                 "-fx-font-size: 28px; " +
                 "-fx-font-weight: bold;"
         );
+
+
+        // Filter row
+
+        HBox filterRow =
+                new HBox(
+                        10,
+                        searchField,
+                        categoryFilter,
+                        fromDateFilter,
+                        toDateFilter
+                );
+
+
+        // Transaction input row
 
         HBox inputRow =
                 new HBox(
@@ -518,6 +768,9 @@ public class TransactionsView {
                         categoryField
                 );
 
+
+        // Action buttons
+
         HBox actionRow =
                 new HBox(
                         10,
@@ -526,18 +779,22 @@ public class TransactionsView {
                         deleteButton
                 );
 
+
         VBox layout =
                 new VBox(
                         20,
                         heading,
+                        filterRow,
                         inputRow,
                         actionRow,
                         table
                 );
 
+
         layout.setPadding(
                 new Insets(30)
         );
+
 
         return layout;
     }
