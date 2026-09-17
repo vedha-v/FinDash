@@ -3,6 +3,7 @@ package com.findash.ui;
 import com.findash.model.Transaction;
 import com.findash.repository.TransactionRepository;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -23,14 +24,14 @@ public class TransactionsView {
 
     private final TableView<Transaction> table;
     private final TransactionRepository repository;
-
+    private final DashboardView dashboardView;
     private final DatePicker datePicker;
     private final TextField descriptionField;
     private final TextField amountField;
     private final TextField categoryField;
 
-    public TransactionsView() {
-
+    public TransactionsView(DashboardView dashboardView) {
+        this.dashboardView=dashboardView;
         repository = new TransactionRepository();
 
         table = new TableView<>();
@@ -185,10 +186,10 @@ public class TransactionsView {
         try {
 
             repository.save(transaction);
-
             System.out.println(
                     "Transaction added successfully."
             );
+            dashboardView.refresh();
 
             clearForm();
 

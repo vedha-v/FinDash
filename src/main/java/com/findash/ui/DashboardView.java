@@ -31,10 +31,10 @@ public class DashboardView {
         expenseValue = new Label("₹0.00");
         balanceValue = new Label("₹0.00");
 
-        loadSummary();
+        refresh();
     }
 
-    private void loadSummary() {
+    public void refresh() {
 
         try {
 

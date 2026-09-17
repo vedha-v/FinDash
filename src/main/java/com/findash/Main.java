@@ -2,6 +2,7 @@ package com.findash;
 
 import com.findash.repository.DatabaseInitializer;
 import com.findash.ui.TransactionsView;
+import com.findash.ui.BudgetView;
 import com.findash.ui.DashboardView;
 
 
@@ -37,7 +38,7 @@ public class Main extends Application {
                 new DashboardView();
 
         TransactionsView transactionsView =
-                new TransactionsView();
+                new TransactionsView(dashboardView);
 
         // Create tabs
         Tab dashboardTab =
@@ -56,10 +57,20 @@ public class Main extends Application {
         dashboardTab.setClosable(false);
         transactionsTab.setClosable(false);
 
-        TabPane tabPane = new TabPane(
-                dashboardTab,
-                transactionsTab
+      BudgetView budgetView =
+        new BudgetView();
+
+Tab budgetTab =
+        new Tab(
+                "Budgets",
+                budgetView.getView()
         );
+
+TabPane tabPane = new TabPane(
+        dashboardTab,
+        transactionsTab,
+        budgetTab
+);
 
         
 
