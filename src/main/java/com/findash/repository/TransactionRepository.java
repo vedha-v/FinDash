@@ -21,12 +21,28 @@ public class TransactionRepository {
                 """;
 
         try (Connection connection = Database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
 
-            statement.setString(1, transaction.getDate().toString());
-            statement.setString(2, transaction.getDescription());
-            statement.setDouble(3, transaction.getAmount());
-            statement.setString(4, transaction.getCategory());
+            statement.setString(
+                    1,
+                    transaction.getDate().toString()
+            );
+
+            statement.setString(
+                    2,
+                    transaction.getDescription()
+            );
+
+            statement.setDouble(
+                    3,
+                    transaction.getAmount()
+            );
+
+            statement.setString(
+                    4,
+                    transaction.getCategory()
+            );
 
             statement.executeUpdate();
         }
@@ -34,7 +50,8 @@ public class TransactionRepository {
 
     public List<Transaction> findAll() throws SQLException {
 
-        List<Transaction> transactions = new ArrayList<>();
+        List<Transaction> transactions =
+                new ArrayList<>();
 
         String sql = """
                 SELECT id, date, description, amount, category
@@ -43,16 +60,20 @@ public class TransactionRepository {
                 """;
 
         try (Connection connection = Database.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
+             PreparedStatement statement =
+                     connection.prepareStatement(sql);
+             ResultSet resultSet =
+                     statement.executeQuery()) {
 
             while (resultSet.next()) {
 
-                int id = resultSet.getInt("id");
+                int id =
+                        resultSet.getInt("id");
 
-                LocalDate date = LocalDate.parse(
-                        resultSet.getString("date")
-                );
+                LocalDate date =
+                        LocalDate.parse(
+                                resultSet.getString("date")
+                        );
 
                 String description =
                         resultSet.getString("description");
@@ -63,18 +84,78 @@ public class TransactionRepository {
                 String category =
                         resultSet.getString("category");
 
-                Transaction transaction = new Transaction(
-                        id,
-                        date,
-                        description,
-                        amount,
-                        category
-                );
+                Transaction transaction =
+                        new Transaction(
+                                id,
+                                date,
+                                description,
+                                amount,
+                                category
+                        );
 
                 transactions.add(transaction);
             }
         }
 
         return transactions;
+    }
+
+    public void update(Transaction transaction)
+            throws SQLException {
+
+        String sql = """
+                UPDATE transactions
+                SET date = ?, description = ?, amount = ?, category = ?
+                WHERE id = ?
+                """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setString(
+                    1,
+                    transaction.getDate().toString()
+            );
+
+            statement.setString(
+                    2,
+                    transaction.getDescription()
+            );
+
+            statement.setDouble(
+                    3,
+                    transaction.getAmount()
+            );
+
+            statement.setString(
+                    4,
+                    transaction.getCategory()
+            );
+
+            statement.setInt(
+                    5,
+                    transaction.getId()
+            );
+
+            statement.executeUpdate();
+        }
+    }
+
+    public void delete(int id) throws SQLException {
+
+        String sql = """
+                DELETE FROM transactions
+                WHERE id = ?
+                """;
+
+        try (Connection connection = Database.getConnection();
+             PreparedStatement statement =
+                     connection.prepareStatement(sql)) {
+
+            statement.setInt(1, id);
+
+            statement.executeUpdate();
+        }
     }
 }

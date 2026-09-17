@@ -72,6 +72,7 @@ TabPane tabPane = new TabPane(
         budgetTab
 );
 
+
         
 
          Scene scene =

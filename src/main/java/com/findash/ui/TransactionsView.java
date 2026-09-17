@@ -3,10 +3,12 @@ package com.findash.ui;
 import com.findash.model.Transaction;
 import com.findash.repository.TransactionRepository;
 
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -25,20 +27,23 @@ public class TransactionsView {
     private final TableView<Transaction> table;
     private final TransactionRepository repository;
     private final DashboardView dashboardView;
+
     private final DatePicker datePicker;
     private final TextField descriptionField;
     private final TextField amountField;
     private final TextField categoryField;
 
-    public TransactionsView(DashboardView dashboardView) {
-        this.dashboardView=dashboardView;
+    public TransactionsView(
+            DashboardView dashboardView) {
+
+        this.dashboardView = dashboardView;
         repository = new TransactionRepository();
 
         table = new TableView<>();
 
-        // -----------------------------
+        // --------------------------------
         // Table columns
-        // -----------------------------
+        // --------------------------------
 
         TableColumn<Transaction, LocalDate> dateColumn =
                 new TableColumn<>("Date");
@@ -75,9 +80,9 @@ public class TransactionsView {
                 amountColumn
         );
 
-        // -----------------------------
+        // --------------------------------
         // Input fields
-        // -----------------------------
+        // --------------------------------
 
         datePicker = new DatePicker();
 
@@ -90,42 +95,78 @@ public class TransactionsView {
         categoryField = new TextField();
         categoryField.setPromptText("Category");
 
-        Button addButton = new Button("Add Transaction");
+        // --------------------------------
+        // Buttons
+        // --------------------------------
 
-        addButton.setOnAction(event -> addTransaction());
+        Button addButton =
+                new Button("Add Transaction");
 
-        // -----------------------------
-        // Layout
-        // -----------------------------
+        Button updateButton =
+                new Button("Update Selected");
 
-        HBox form = new HBox(
-                10,
-                datePicker,
-                descriptionField,
-                amountField,
-                categoryField,
-                addButton
+        Button deleteButton =
+                new Button("Delete Selected");
+
+        addButton.setOnAction(
+                event -> addTransaction()
         );
 
-        VBox layout = new VBox(
-                15,
-                new Label("Transactions"),
-                form,
-                table
+        updateButton.setOnAction(
+                event -> updateTransaction()
         );
 
-        layout.setPrefWidth(900);
+        deleteButton.setOnAction(
+                event -> deleteTransaction()
+        );
+
+        // --------------------------------
+        // Table selection
+        // --------------------------------
+
+        table.getSelectionModel()
+                .selectedItemProperty()
+                .addListener(
+                        (observable, oldTransaction,
+                         selectedTransaction) -> {
+
+                            if (selectedTransaction != null) {
+
+                                datePicker.setValue(
+                                        selectedTransaction.getDate()
+                                );
+
+                                descriptionField.setText(
+                                        selectedTransaction
+                                                .getDescription()
+                                );
+
+                                amountField.setText(
+                                        String.valueOf(
+                                                selectedTransaction
+                                                        .getAmount()
+                                        )
+                                );
+
+                                categoryField.setText(
+                                        selectedTransaction
+                                                .getCategory()
+                                );
+                            }
+                        }
+                );
 
         loadTransactions();
-
-        this.layout = layout;
     }
 
-    private final VBox layout;
+    // --------------------------------
+    // Add transaction
+    // --------------------------------
 
     private void addTransaction() {
 
-        LocalDate date = datePicker.getValue();
+        LocalDate date =
+                datePicker.getValue();
 
         String description =
                 descriptionField.getText().trim();
@@ -136,16 +177,12 @@ public class TransactionsView {
         String category =
                 categoryField.getText().trim();
 
-        // -----------------------------
-        // Validation
-        // -----------------------------
-
         if (date == null ||
                 description.isEmpty() ||
                 amountText.isEmpty() ||
                 category.isEmpty()) {
 
-            System.out.println(
+            showError(
                     "Please fill in all fields."
             );
 
@@ -156,20 +193,26 @@ public class TransactionsView {
 
         try {
 
-            amount = Double.parseDouble(amountText);
+            amount =
+                    Double.parseDouble(amountText);
 
         } catch (NumberFormatException e) {
 
-            System.out.println(
+            showError(
                     "Amount must be a valid number."
             );
 
             return;
         }
 
-        // -----------------------------
-        // Create transaction
-        // -----------------------------
+        if (amount == 0) {
+
+            showError(
+                    "Amount cannot be zero."
+            );
+
+            return;
+        }
 
         Transaction transaction =
                 new Transaction(
@@ -179,31 +222,197 @@ public class TransactionsView {
                         category
                 );
 
-        // -----------------------------
-        // Save to database
-        // -----------------------------
-
         try {
 
             repository.save(transaction);
+
+            clearForm();
+            loadTransactions();
+            dashboardView.refresh();
+
             System.out.println(
                     "Transaction added successfully."
             );
-            dashboardView.refresh();
-
-            clearForm();
-
-            loadTransactions();
 
         } catch (SQLException e) {
 
-            System.out.println(
+            showError(
                     "Failed to save transaction."
             );
 
             e.printStackTrace();
         }
     }
+
+    // --------------------------------
+    // Update transaction
+    // --------------------------------
+
+    private void updateTransaction() {
+
+        Transaction selectedTransaction =
+                table.getSelectionModel()
+                        .getSelectedItem();
+
+        if (selectedTransaction == null) {
+
+            showError(
+                    "Please select a transaction to update."
+            );
+
+            return;
+        }
+
+        LocalDate date =
+                datePicker.getValue();
+
+        String description =
+                descriptionField.getText().trim();
+
+        String amountText =
+                amountField.getText().trim();
+
+        String category =
+                categoryField.getText().trim();
+
+        if (date == null ||
+                description.isEmpty() ||
+                amountText.isEmpty() ||
+                category.isEmpty()) {
+
+            showError(
+                    "Please fill in all fields."
+            );
+
+            return;
+        }
+
+        double amount;
+
+        try {
+
+            amount =
+                    Double.parseDouble(amountText);
+
+        } catch (NumberFormatException e) {
+
+            showError(
+                    "Amount must be a valid number."
+            );
+
+            return;
+        }
+
+        if (amount == 0) {
+
+            showError(
+                    "Amount cannot be zero."
+            );
+
+            return;
+        }
+
+        selectedTransaction.setDate(date);
+        selectedTransaction.setDescription(description);
+        selectedTransaction.setAmount(amount);
+        selectedTransaction.setCategory(category);
+
+        try {
+
+            repository.update(
+                    selectedTransaction
+            );
+
+            clearForm();
+            loadTransactions();
+            dashboardView.refresh();
+
+            System.out.println(
+                    "Transaction updated successfully."
+            );
+
+        } catch (SQLException e) {
+
+            showError(
+                    "Failed to update transaction."
+            );
+
+            e.printStackTrace();
+        }
+    }
+
+    // --------------------------------
+    // Delete transaction
+    // --------------------------------
+
+    private void deleteTransaction() {
+
+        Transaction selectedTransaction =
+                table.getSelectionModel()
+                        .getSelectedItem();
+
+        if (selectedTransaction == null) {
+
+            showError(
+                    "Please select a transaction to delete."
+            );
+
+            return;
+        }
+
+        Alert confirmation =
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
+
+        confirmation.setTitle(
+                "Delete Transaction"
+        );
+
+        confirmation.setHeaderText(
+                "Delete this transaction?"
+        );
+
+        confirmation.setContentText(
+                selectedTransaction.getDescription()
+        );
+
+        confirmation.showAndWait()
+                .ifPresent(response -> {
+
+                    if (response ==
+                            ButtonType.OK) {
+
+                        try {
+
+                            repository.delete(
+                                    selectedTransaction
+                                            .getId()
+                            );
+
+                            clearForm();
+                            loadTransactions();
+                            dashboardView.refresh();
+
+                            System.out.println(
+                                    "Transaction deleted successfully."
+                            );
+
+                        } catch (SQLException e) {
+
+                            showError(
+                                    "Failed to delete transaction."
+                            );
+
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
+    // --------------------------------
+    // Load transactions
+    // --------------------------------
 
     private void loadTransactions() {
 
@@ -221,7 +430,7 @@ public class TransactionsView {
 
         } catch (SQLException e) {
 
-            System.out.println(
+            showError(
                     "Failed to load transactions."
             );
 
@@ -229,15 +438,108 @@ public class TransactionsView {
         }
     }
 
+    // --------------------------------
+    // Clear form
+    // --------------------------------
+
     private void clearForm() {
 
         datePicker.setValue(null);
         descriptionField.clear();
         amountField.clear();
         categoryField.clear();
+
+        table.getSelectionModel()
+                .clearSelection();
     }
 
+    // --------------------------------
+    // Error dialog
+    // --------------------------------
+
+    private void showError(String message) {
+
+        Alert alert =
+                new Alert(
+                        Alert.AlertType.ERROR
+                );
+
+        alert.setTitle(
+                "Transaction Error"
+        );
+
+        alert.setHeaderText(null);
+
+        alert.setContentText(message);
+
+        alert.showAndWait();
+    }
+
+    // --------------------------------
+    // UI
+    // --------------------------------
+
     public VBox getView() {
+
+        Label heading =
+                new Label("Transaction Management");
+
+        heading.setStyle(
+                "-fx-font-size: 28px; " +
+                "-fx-font-weight: bold;"
+        );
+
+        HBox inputRow =
+                new HBox(
+                        10,
+                        datePicker,
+                        descriptionField,
+                        amountField,
+                        categoryField
+                );
+
+        HBox actionRow =
+                new HBox(
+                        10,
+                        new Button("Add Transaction"),
+                        new Button("Update Selected"),
+                        new Button("Delete Selected")
+                );
+
+        // Reconnect the button actions
+        Button addButton =
+                (Button) actionRow.getChildren().get(0);
+
+        Button updateButton =
+                (Button) actionRow.getChildren().get(1);
+
+        Button deleteButton =
+                (Button) actionRow.getChildren().get(2);
+
+        addButton.setOnAction(
+                event -> addTransaction()
+        );
+
+        updateButton.setOnAction(
+                event -> updateTransaction()
+        );
+
+        deleteButton.setOnAction(
+                event -> deleteTransaction()
+        );
+
+        VBox layout =
+                new VBox(
+                        20,
+                        heading,
+                        inputRow,
+                        actionRow,
+                        table
+                );
+
+        layout.setPadding(
+                new Insets(30)
+        );
 
         return layout;
     }
