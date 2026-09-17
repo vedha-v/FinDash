@@ -27,16 +27,21 @@ public class TransactionsView {
     private final TableView<Transaction> table;
     private final TransactionRepository repository;
     private final DashboardView dashboardView;
+    private final BudgetView budgetView;
 
     private final DatePicker datePicker;
     private final TextField descriptionField;
     private final TextField amountField;
     private final TextField categoryField;
 
-    public TransactionsView(
-            DashboardView dashboardView) {
+    private final Button addButton;
+    private final Button updateButton;
+        private final Button deleteButton;
+
+    public TransactionsView(DashboardView dashboardView,BudgetView budgetView) {
 
         this.dashboardView = dashboardView;
+        this.budgetView=budgetView;
         repository = new TransactionRepository();
 
         table = new TableView<>();
@@ -99,13 +104,13 @@ public class TransactionsView {
         // Buttons
         // --------------------------------
 
-        Button addButton =
+        addButton =
                 new Button("Add Transaction");
 
-        Button updateButton =
+        updateButton =
                 new Button("Update Selected");
 
-        Button deleteButton =
+        deleteButton =
                 new Button("Delete Selected");
 
         addButton.setOnAction(
@@ -229,6 +234,7 @@ public class TransactionsView {
             clearForm();
             loadTransactions();
             dashboardView.refresh();
+            budgetView.refresh();
 
             System.out.println(
                     "Transaction added successfully."
@@ -326,6 +332,7 @@ public class TransactionsView {
             clearForm();
             loadTransactions();
             dashboardView.refresh();
+            budgetView.refresh();
 
             System.out.println(
                     "Transaction updated successfully."
@@ -393,6 +400,8 @@ public class TransactionsView {
                             clearForm();
                             loadTransactions();
                             dashboardView.refresh();
+                            budgetView.refresh();
+
 
                             System.out.println(
                                     "Transaction deleted successfully."
@@ -475,7 +484,7 @@ public class TransactionsView {
         alert.showAndWait();
     }
 
-    // --------------------------------
+       // --------------------------------
     // UI
     // --------------------------------
 
@@ -501,32 +510,10 @@ public class TransactionsView {
         HBox actionRow =
                 new HBox(
                         10,
-                        new Button("Add Transaction"),
-                        new Button("Update Selected"),
-                        new Button("Delete Selected")
+                        addButton,
+                        updateButton,
+                        deleteButton
                 );
-
-        // Reconnect the button actions
-        Button addButton =
-                (Button) actionRow.getChildren().get(0);
-
-        Button updateButton =
-                (Button) actionRow.getChildren().get(1);
-
-        Button deleteButton =
-                (Button) actionRow.getChildren().get(2);
-
-        addButton.setOnAction(
-                event -> addTransaction()
-        );
-
-        updateButton.setOnAction(
-                event -> updateTransaction()
-        );
-
-        deleteButton.setOnAction(
-                event -> deleteTransaction()
-        );
 
         VBox layout =
                 new VBox(

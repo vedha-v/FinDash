@@ -1,13 +1,18 @@
 package com.findash.ui;
 
 import com.findash.model.Budget;
+import com.findash.model.Transaction;
 import com.findash.repository.BudgetRepository;
+import com.findash.repository.TransactionRepository;
+import com.findash.service.BudgetService;
+import com.findash.service.BudgetStatus;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -21,9 +26,11 @@ import java.util.List;
 
 public class BudgetView {
 
-    private final BudgetRepository repository;
+    private final BudgetRepository budgetRepository;
+    private final TransactionRepository transactionRepository;
+    private final BudgetService budgetService;
 
-    private final TableView<Budget> table;
+    private final TableView<BudgetStatus> table;
 
     private final TextField categoryField;
     private final TextField amountField;
@@ -34,7 +41,9 @@ public class BudgetView {
 
     public BudgetView() {
 
-        repository = new BudgetRepository();
+        budgetRepository = new BudgetRepository();
+        transactionRepository = new TransactionRepository();
+        budgetService = new BudgetService();
 
         table = new TableView<>();
 
@@ -42,23 +51,47 @@ public class BudgetView {
         // Table columns
         // --------------------------------
 
-        TableColumn<Budget, String> categoryColumn =
+        TableColumn<BudgetStatus, String> categoryColumn =
                 new TableColumn<>("Category");
 
-        TableColumn<Budget, Double> amountColumn =
-                new TableColumn<>("Budget Amount");
+        TableColumn<BudgetStatus, Double> budgetColumn =
+                new TableColumn<>("Budget");
+
+        TableColumn<BudgetStatus, Double> spentColumn =
+                new TableColumn<>("Spent");
+
+        TableColumn<BudgetStatus, Double> remainingColumn =
+                new TableColumn<>("Remaining");
+
+        TableColumn<BudgetStatus, Double> percentageColumn =
+                new TableColumn<>("Used %");
 
         categoryColumn.setCellValueFactory(
                 new PropertyValueFactory<>("category")
         );
 
-        amountColumn.setCellValueFactory(
-                new PropertyValueFactory<>("amount")
+        budgetColumn.setCellValueFactory(
+                new PropertyValueFactory<>("budget")
+        );
+
+        spentColumn.setCellValueFactory(
+                new PropertyValueFactory<>("spent")
+        );
+
+        remainingColumn.setCellValueFactory(
+                new PropertyValueFactory<>("remaining")
+        );
+
+        percentageColumn.setCellValueFactory(
+                new PropertyValueFactory<>("percentageUsed")
         );
 
         table.getColumns().addAll(
                 categoryColumn,
-                amountColumn
+                budgetColumn,
+                spentColumn,
+                remainingColumn,
+                percentageColumn
         );
 
         // --------------------------------
@@ -84,10 +117,6 @@ public class BudgetView {
         deleteButton =
                 new Button("Delete Selected");
 
-        // --------------------------------
-        // Button actions
-        // --------------------------------
-
         addButton.setOnAction(
                 event -> addBudget()
         );
@@ -101,30 +130,30 @@ public class BudgetView {
         );
 
         // --------------------------------
-        // Table selection
+        // Selection
         // --------------------------------
 
         table.getSelectionModel()
                 .selectedItemProperty()
                 .addListener(
-                        (observable, oldBudget, selectedBudget) -> {
+                        (observable, oldStatus, selectedStatus) -> {
 
-                            if (selectedBudget != null) {
+                            if (selectedStatus != null) {
 
                                 categoryField.setText(
-                                        selectedBudget.getCategory()
+                                        selectedStatus.getCategory()
                                 );
 
                                 amountField.setText(
                                         String.valueOf(
-                                                selectedBudget.getAmount()
+                                                selectedStatus.getBudget()
                                         )
                                 );
                             }
                         }
                 );
 
-        loadBudgets();
+        refresh();
     }
 
     // --------------------------------
@@ -182,20 +211,20 @@ public class BudgetView {
 
         try {
 
-            repository.save(budget);
+            budgetRepository.save(budget);
+
+            clearForm();
+            refresh();
 
             System.out.println(
                     "Budget added successfully."
             );
 
-            clearForm();
-            loadBudgets();
-
         } catch (SQLException e) {
 
             showError(
                     "Could not add budget.\n" +
-                    "Make sure this category does not already have a budget."
+                    "This category may already have a budget."
             );
 
             e.printStackTrace();
@@ -208,11 +237,11 @@ public class BudgetView {
 
     private void updateBudget() {
 
-        Budget selectedBudget =
+        BudgetStatus selectedStatus =
                 table.getSelectionModel()
                         .getSelectedItem();
 
-        if (selectedBudget == null) {
+        if (selectedStatus == null) {
 
             showError(
                     "Please select a budget to update."
@@ -262,21 +291,48 @@ public class BudgetView {
             return;
         }
 
-        selectedBudget.setCategory(category);
-        selectedBudget.setAmount(amount);
-
         try {
 
-            repository.update(
+            // Find the original Budget so we retain its ID
+            List<Budget> budgets =
+                    budgetRepository.findAll();
+
+            Budget selectedBudget = null;
+
+            for (Budget budget : budgets) {
+
+                if (budget.getCategory()
+                        .equalsIgnoreCase(
+                                selectedStatus.getCategory()
+                        )) {
+
+                    selectedBudget = budget;
+                    break;
+                }
+            }
+
+            if (selectedBudget == null) {
+
+                showError(
+                        "Could not find the selected budget."
+                );
+
+                return;
+            }
+
+            selectedBudget.setCategory(category);
+            selectedBudget.setAmount(amount);
+
+            budgetRepository.update(
                     selectedBudget
             );
+
+            clearForm();
+            refresh();
 
             System.out.println(
                     "Budget updated successfully."
             );
-
-            clearForm();
-            loadBudgets();
 
         } catch (SQLException e) {
 
@@ -294,11 +350,11 @@ public class BudgetView {
 
     private void deleteBudget() {
 
-        Budget selectedBudget =
+        BudgetStatus selectedStatus =
                 table.getSelectionModel()
                         .getSelectedItem();
 
-        if (selectedBudget == null) {
+        if (selectedStatus == null) {
 
             showError(
                     "Please select a budget to delete."
@@ -307,46 +363,97 @@ public class BudgetView {
             return;
         }
 
-        try {
+        Alert confirmation =
+                new Alert(
+                        Alert.AlertType.CONFIRMATION
+                );
 
-            repository.delete(
-                    selectedBudget.getId()
-            );
+        confirmation.setTitle(
+                "Delete Budget"
+        );
 
-            System.out.println(
-                    "Budget deleted successfully."
-            );
+        confirmation.setHeaderText(
+                "Delete this budget?"
+        );
 
-            clearForm();
-            loadBudgets();
+        confirmation.setContentText(
+                selectedStatus.getCategory()
+        );
 
-        } catch (SQLException e) {
+        confirmation.showAndWait()
+                .ifPresent(response -> {
 
-            showError(
-                    "Could not delete budget."
-            );
+                    if (response ==
+                            ButtonType.OK) {
 
-            e.printStackTrace();
-        }
+                        try {
+
+                            List<Budget> budgets =
+                                    budgetRepository.findAll();
+
+                            for (Budget budget : budgets) {
+
+                                if (budget.getCategory()
+                                        .equalsIgnoreCase(
+                                                selectedStatus.getCategory()
+                                        )) {
+
+                                    budgetRepository.delete(
+                                            budget.getId()
+                                    );
+
+                                    break;
+                                }
+                            }
+
+                            clearForm();
+                            refresh();
+
+                            System.out.println(
+                                    "Budget deleted successfully."
+                            );
+
+                        } catch (SQLException e) {
+
+                            showError(
+                                    "Could not delete budget."
+                            );
+
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 
     // --------------------------------
-    // Load budgets
+    // Calculate and load budget status
     // --------------------------------
 
-    private void loadBudgets() {
+    public void refresh() {
 
         try {
 
             List<Budget> budgets =
-                    repository.findAll();
+                    budgetRepository.findAll();
 
-            ObservableList<Budget> data =
-                    FXCollections.observableArrayList(
-                            budgets
-                    );
+            List<Transaction> transactions =
+                    transactionRepository.findAll();
 
-            table.setItems(data);
+            ObservableList<BudgetStatus> statuses =
+                    FXCollections.observableArrayList();
+
+            for (Budget budget : budgets) {
+
+                BudgetStatus status =
+                        budgetService.calculateStatus(
+                                budget,
+                                transactions
+                        );
+
+                statuses.add(status);
+            }
+
+            table.setItems(statuses);
 
         } catch (SQLException e) {
 
@@ -382,8 +489,12 @@ public class BudgetView {
                         Alert.AlertType.ERROR
                 );
 
-        alert.setTitle("Budget Error");
+        alert.setTitle(
+                "Budget Error"
+        );
+
         alert.setHeaderText(null);
+
         alert.setContentText(message);
 
         alert.showAndWait();

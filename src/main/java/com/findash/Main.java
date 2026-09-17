@@ -36,9 +36,11 @@ public class Main extends Application {
           // Create our two main screens
         DashboardView dashboardView =
                 new DashboardView();
+         BudgetView budgetView =
+        new BudgetView();
 
         TransactionsView transactionsView =
-                new TransactionsView(dashboardView);
+                new TransactionsView(dashboardView, budgetView);
 
         // Create tabs
         Tab dashboardTab =
@@ -57,8 +59,7 @@ public class Main extends Application {
         dashboardTab.setClosable(false);
         transactionsTab.setClosable(false);
 
-      BudgetView budgetView =
-        new BudgetView();
+     
 
 Tab budgetTab =
         new Tab(
