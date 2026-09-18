@@ -37,9 +37,7 @@ public class DashboardView {
     public void refresh() {
 
         try {
-
-            List<Transaction> transactions =
-                    repository.findAll();
+            List<Transaction> transactions = repository.findAll();
 
             double income =
                     summary.calculateIncome(transactions);
@@ -76,42 +74,35 @@ public class DashboardView {
             String title,
             Label value) {
 
-        Label titleLabel =
-                new Label(title);
+        Label titleLabel = new Label(title);
 
         titleLabel.setStyle(
-                "-fx-font-size: 16px; " +
-                "-fx-font-weight: bold;"
+                "-fx-font-size: 15px; " +
+                "-fx-text-fill: #777481;"
         );
 
         value.setStyle(
-                "-fx-font-size: 24px; " +
-                "-fx-font-weight: bold;"
+                "-fx-font-size: 26px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-text-fill: #292735;"
         );
 
-        VBox card =
-                new VBox(
-                        10,
-                        titleLabel,
-                        value
-                );
-
-        card.setPadding(
-                new Insets(20)
+        VBox card = new VBox(
+                10,
+                titleLabel,
+                value
         );
 
-        card.setAlignment(
-                Pos.CENTER_LEFT
-        );
-
+        card.setPadding(new Insets(20));
+        card.setAlignment(Pos.CENTER_LEFT);
         card.setPrefWidth(240);
-        card.setPrefHeight(120);
+        card.setPrefHeight(125);
 
         card.setStyle(
-                "-fx-background-color: white; " +
-                "-fx-background-radius: 10; " +
-                "-fx-border-color: #dddddd; " +
-                "-fx-border-radius: 10;"
+                "-fx-background-color: #FFFFFF; " +
+                "-fx-background-radius: 14; " +
+                "-fx-border-color: #EAE5FF; " +
+                "-fx-border-radius: 14;"
         );
 
         return card;
@@ -123,8 +114,19 @@ public class DashboardView {
                 new Label("Financial Dashboard");
 
         heading.setStyle(
-                "-fx-font-size: 28px; " +
-                "-fx-font-weight: bold;"
+                "-fx-font-size: 30px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-text-fill: #292735;"
+        );
+
+        Label subtitle =
+                new Label(
+                        "Overview of your income, expenses and current balance."
+                );
+
+        subtitle.setStyle(
+                "-fx-font-size: 15px; " +
+                "-fx-text-fill: #777481;"
         );
 
         VBox incomeCard =
@@ -145,6 +147,30 @@ public class DashboardView {
                         balanceValue
                 );
 
+        // Pastel green for income
+        incomeCard.setStyle(
+                "-fx-background-color: #E4F3E7; " +
+                "-fx-background-radius: 14; " +
+                "-fx-border-color: #B8E0C2; " +
+                "-fx-border-radius: 14;"
+        );
+
+        // Soft lavender for expenses
+        expenseCard.setStyle(
+                "-fx-background-color: #EAE5FF; " +
+                "-fx-background-radius: 14; " +
+                "-fx-border-color: #D6CEFF; " +
+                "-fx-border-radius: 14;"
+        );
+
+        // Slightly deeper lavender for balance
+        balanceCard.setStyle(
+                "-fx-background-color: #F0EBFF; " +
+                "-fx-background-radius: 14; " +
+                "-fx-border-color: #D6CEFF; " +
+                "-fx-border-radius: 14;"
+        );
+
         HBox cards =
                 new HBox(
                         20,
@@ -153,19 +179,24 @@ public class DashboardView {
                         balanceCard
                 );
 
-        cards.setAlignment(
-                Pos.CENTER_LEFT
-        );
+        cards.setAlignment(Pos.CENTER_LEFT);
 
         VBox layout =
                 new VBox(
-                        25,
+                        8,
                         heading,
+                        subtitle,
                         cards
                 );
 
         layout.setPadding(
                 new Insets(30)
+        );
+
+        layout.setSpacing(18);
+
+        layout.setStyle(
+                "-fx-background-color: #F7F5FA;"
         );
 
         return layout;

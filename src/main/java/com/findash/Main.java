@@ -76,8 +76,6 @@ public class Main extends Application {
                         analyticsView.getView()
                 );
 
-        // Prevent tabs from being closed
-
         dashboardTab.setClosable(false);
         transactionsTab.setClosable(false);
         budgetTab.setClosable(false);

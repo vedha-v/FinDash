@@ -10,6 +10,7 @@ import com.findash.service.BudgetStatus;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -47,10 +48,7 @@ public class BudgetView {
 
         table = new TableView<>();
 
-        // --------------------------------
-        // Table columns
-        // --------------------------------
-
+   
         TableColumn<BudgetStatus, String> categoryColumn =
                 new TableColumn<>("Category");
 
@@ -94,19 +92,13 @@ public class BudgetView {
                 percentageColumn
         );
 
-        // --------------------------------
-        // Input fields
-        // --------------------------------
-
         categoryField = new TextField();
         categoryField.setPromptText("Category");
 
         amountField = new TextField();
         amountField.setPromptText("Budget Amount");
 
-        // --------------------------------
-        // Buttons
-        // --------------------------------
+    
 
         addButton =
                 new Button("Add Budget");
@@ -129,9 +121,6 @@ public class BudgetView {
                 event -> deleteBudget()
         );
 
-        // --------------------------------
-        // Selection
-        // --------------------------------
 
         table.getSelectionModel()
                 .selectedItemProperty()
@@ -155,10 +144,6 @@ public class BudgetView {
 
         refresh();
     }
-
-    // --------------------------------
-    // Add budget
-    // --------------------------------
 
     private void addBudget() {
 
@@ -231,9 +216,7 @@ public class BudgetView {
         }
     }
 
-    // --------------------------------
-    // Update budget
-    // --------------------------------
+
 
     private void updateBudget() {
 
@@ -344,9 +327,6 @@ public class BudgetView {
         }
     }
 
-    // --------------------------------
-    // Delete budget
-    // --------------------------------
 
     private void deleteBudget() {
 
@@ -425,9 +405,6 @@ public class BudgetView {
                 });
     }
 
-    // --------------------------------
-    // Calculate and load budget status
-    // --------------------------------
 
     public void refresh() {
 
@@ -465,10 +442,6 @@ public class BudgetView {
         }
     }
 
-    // --------------------------------
-    // Clear form
-    // --------------------------------
-
     private void clearForm() {
 
         categoryField.clear();
@@ -477,10 +450,6 @@ public class BudgetView {
         table.getSelectionModel()
                 .clearSelection();
     }
-
-    // --------------------------------
-    // Error dialog
-    // --------------------------------
 
     private void showError(String message) {
 
@@ -500,48 +469,127 @@ public class BudgetView {
         alert.showAndWait();
     }
 
-    // --------------------------------
-    // UI
-    // --------------------------------
 
-    public VBox getView() {
 
-        Label heading =
-                new Label("Budget Management");
+   public VBox getView() {
 
-        heading.setStyle(
-                "-fx-font-size: 28px; " +
-                "-fx-font-weight: bold;"
-        );
+    Label heading =
+            new Label("Budget Management");
 
-        HBox inputRow =
-                new HBox(
-                        10,
-                        categoryField,
-                        amountField,
-                        addButton
-                );
+    heading.setStyle(
+            "-fx-font-size: 30px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #292735;"
+    );
 
-        HBox actionRow =
-                new HBox(
-                        10,
-                        updateButton,
-                        deleteButton
-                );
+    Label subtitle =
+            new Label(
+                    "Set spending limits and track how much of each budget you've used."
+            );
 
-        VBox layout =
-                new VBox(
-                        20,
-                        heading,
-                        inputRow,
-                        table,
-                        actionRow
-                );
+    subtitle.setStyle(
+            "-fx-font-size: 15px; " +
+            "-fx-text-fill: #777481;"
+    );
 
-        layout.setPadding(
-                new Insets(30)
-        );
+    // Input fields
+    categoryField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10;"
+    );
 
-        return layout;
-    }
+    amountField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10;"
+    );
+
+    categoryField.setPrefWidth(220);
+    amountField.setPrefWidth(180);
+
+    // Add button
+    addButton.setStyle(
+            "-fx-background-color: #B8E0C2; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    // Update button
+    updateButton.setStyle(
+            "-fx-background-color: #EAE5FF; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    // Delete button
+    deleteButton.setStyle(
+            "-fx-background-color: #F0EBFF; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    HBox inputRow =
+            new HBox(
+                    12,
+                    categoryField,
+                    amountField,
+                    addButton
+            );
+
+    inputRow.setAlignment(Pos.CENTER_LEFT);
+
+    HBox actionRow =
+            new HBox(
+                    12,
+                    updateButton,
+                    deleteButton
+            );
+
+    actionRow.setAlignment(Pos.CENTER_LEFT);
+
+    // Style the table
+    table.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #EAE5FF; " +
+            "-fx-border-radius: 10; " +
+            "-fx-background-radius: 10;"
+    );
+
+    table.setColumnResizePolicy(
+            TableView.CONSTRAINED_RESIZE_POLICY
+    );
+
+    VBox layout =
+            new VBox(
+                    8,
+                    heading,
+                    subtitle,
+                    inputRow,
+                    table,
+                    actionRow
+            );
+
+    layout.setPadding(
+            new Insets(30)
+    );
+
+    layout.setSpacing(18);
+
+    layout.setStyle(
+            "-fx-background-color: #F7F5FA;"
+    );
+
+    return layout;
+}
 }

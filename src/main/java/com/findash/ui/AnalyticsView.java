@@ -35,26 +35,17 @@ public class AnalyticsView {
 
         table = new TableView<>();
 
-        CategoryAxis xAxis =
-                new CategoryAxis();
-
-        NumberAxis yAxis =
-                new NumberAxis();
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
 
         xAxis.setLabel("Category");
         yAxis.setLabel("Amount Spent (₹)");
 
-        chart =
-                new BarChart<>(
-                        xAxis,
-                        yAxis
-                );
+        chart = new BarChart<>(xAxis, yAxis);
 
-        chart.setTitle(
-                "Spending by Category"
-        );
-
+        chart.setTitle("Spending by Category");
         chart.setLegendVisible(false);
+        chart.setAnimated(false);
 
         createColumns();
         refresh();
@@ -109,11 +100,8 @@ public class AnalyticsView {
             for (Map.Entry<String, Double> entry :
                     spending.entrySet()) {
 
-                String category =
-                        entry.getKey();
-
-                double amount =
-                        entry.getValue();
+                String category = entry.getKey();
+                double amount = entry.getValue();
 
                 table.getItems().add(
                         new CategorySpending(
@@ -148,8 +136,9 @@ public class AnalyticsView {
                 new Label("Category Analytics");
 
         heading.setStyle(
-                "-fx-font-size: 28px; " +
-                "-fx-font-weight: bold;"
+                "-fx-font-size: 30px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-text-fill: #292735;"
         );
 
         Label description =
@@ -158,12 +147,33 @@ public class AnalyticsView {
                 );
 
         description.setStyle(
-                "-fx-font-size: 15px;"
+                "-fx-font-size: 15px; " +
+                "-fx-text-fill: #777481;"
+        );
+
+        chart.setStyle(
+                "-fx-background-color: #FFFFFF; " +
+                "-fx-background-radius: 14; " +
+                "-fx-border-color: #EAE5FF; " +
+                "-fx-border-radius: 14;"
+        );
+
+        chart.setPrefHeight(300);
+
+        table.setStyle(
+                "-fx-background-color: #FFFFFF; " +
+                "-fx-border-color: #EAE5FF; " +
+                "-fx-border-radius: 10; " +
+                "-fx-background-radius: 10;"
+        );
+
+        table.setColumnResizePolicy(
+                TableView.CONSTRAINED_RESIZE_POLICY
         );
 
         VBox layout =
                 new VBox(
-                        15,
+                        12,
                         heading,
                         description,
                         chart,
@@ -172,6 +182,12 @@ public class AnalyticsView {
 
         layout.setPadding(
                 new Insets(30)
+        );
+
+        layout.setSpacing(18);
+
+        layout.setStyle(
+                "-fx-background-color: #F7F5FA;"
         );
 
         return layout;

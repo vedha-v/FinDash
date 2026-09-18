@@ -6,6 +6,7 @@ import com.findash.service.TransactionFilter;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -32,18 +33,16 @@ public class TransactionsView {
     private final BudgetView budgetView;
     private final AnalyticsView analyticsView;
 
-    // Transaction input fields
     private final DatePicker datePicker;
     private final TextField descriptionField;
     private final TextField amountField;
     private final TextField categoryField;
 
-    // Transaction buttons
     private final Button addButton;
     private final Button updateButton;
     private final Button deleteButton;
 
-    // Filtering
+    
     private final TransactionFilter transactionFilter;
     private final TextField searchField;
     private final ComboBox<String> categoryFilter;
@@ -67,9 +66,6 @@ public class TransactionsView {
                 new TransactionFilter();
 
 
-        // --------------------------------
-        // Filter controls
-        // --------------------------------
 
         searchField =
                 new TextField();
@@ -103,18 +99,9 @@ public class TransactionsView {
                 "To date"
         );
 
-
-        // --------------------------------
-        // Table
-        // --------------------------------
-
         table =
                 new TableView<>();
 
-
-        // --------------------------------
-        // Table columns
-        // --------------------------------
 
         TableColumn<Transaction, LocalDate> dateColumn =
                 new TableColumn<>("Date");
@@ -154,9 +141,6 @@ public class TransactionsView {
         );
 
 
-        // --------------------------------
-        // Input fields
-        // --------------------------------
 
         datePicker =
                 new DatePicker();
@@ -183,9 +167,6 @@ public class TransactionsView {
         );
 
 
-        // --------------------------------
-        // Buttons
-        // --------------------------------
 
         addButton =
                 new Button("Add Transaction");
@@ -210,10 +191,6 @@ public class TransactionsView {
         );
 
 
-        // --------------------------------
-        // Filter listeners
-        // --------------------------------
-
         searchField.textProperty().addListener(
                 (observable, oldValue, newValue) ->
                         loadTransactions()
@@ -231,10 +208,6 @@ public class TransactionsView {
                 event -> loadTransactions()
         );
 
-
-        // --------------------------------
-        // Table selection
-        // --------------------------------
 
         table.getSelectionModel()
                 .selectedItemProperty()
@@ -271,18 +244,11 @@ public class TransactionsView {
                 );
 
 
-        // --------------------------------
-        // Initial data loading
-        // --------------------------------
-
         loadCategoryFilter();
         loadTransactions();
     }
 
 
-    // --------------------------------
-    // Add transaction
-    // --------------------------------
 
     private void addTransaction() {
 
@@ -377,11 +343,6 @@ public class TransactionsView {
             e.printStackTrace();
         }
     }
-
-
-    // --------------------------------
-    // Update transaction
-    // --------------------------------
 
     private void updateTransaction() {
 
@@ -501,9 +462,6 @@ public class TransactionsView {
     }
 
 
-    // --------------------------------
-    // Delete transaction
-    // --------------------------------
 
     private void deleteTransaction() {
 
@@ -580,9 +538,6 @@ public class TransactionsView {
     }
 
 
-    // --------------------------------
-    // Load transactions
-    // --------------------------------
 
     private void loadTransactions() {
 
@@ -616,10 +571,6 @@ public class TransactionsView {
         }
     }
 
-
-    // --------------------------------
-    // Load category filter
-    // --------------------------------
 
     private void loadCategoryFilter() {
 
@@ -683,10 +634,6 @@ public class TransactionsView {
     }
 
 
-    // --------------------------------
-    // Clear form
-    // --------------------------------
-
     private void clearForm() {
 
         datePicker.setValue(null);
@@ -702,9 +649,6 @@ public class TransactionsView {
     }
 
 
-    // --------------------------------
-    // Error dialog
-    // --------------------------------
 
     private void showError(
             String message) {
@@ -728,74 +672,254 @@ public class TransactionsView {
     }
 
 
-    // --------------------------------
-    // UI
-    // --------------------------------
-
     public VBox getView() {
 
-        Label heading =
-                new Label(
-                        "Transaction Management"
-                );
+    Label heading =
+            new Label("Transaction Management");
 
-        heading.setStyle(
-                "-fx-font-size: 28px; " +
-                "-fx-font-weight: bold;"
-        );
+    heading.setStyle(
+            "-fx-font-size: 30px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #292735;"
+    );
 
+    Label subtitle =
+            new Label(
+                    "Add, edit, delete and filter your financial transactions."
+            );
 
-        // Filter row
+    subtitle.setStyle(
+            "-fx-font-size: 15px; " +
+            "-fx-text-fill: #777481;"
+    );
 
-        HBox filterRow =
-                new HBox(
-                        10,
-                        searchField,
-                        categoryFilter,
-                        fromDateFilter,
-                        toDateFilter
-                );
+    // -------------------------
+    // Filter section
+    // -------------------------
 
+    Label filterTitle =
+            new Label("Filter Transactions");
 
-        // Transaction input row
+    filterTitle.setStyle(
+            "-fx-font-size: 17px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #292735;"
+    );
 
-        HBox inputRow =
-                new HBox(
-                        10,
-                        datePicker,
-                        descriptionField,
-                        amountField,
-                        categoryField
-                );
+    searchField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 9;"
+    );
 
+    categoryFilter.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8;"
+    );
 
-        // Action buttons
+    fromDateFilter.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8;"
+    );
 
-        HBox actionRow =
-                new HBox(
-                        10,
-                        addButton,
-                        updateButton,
-                        deleteButton
-                );
+    toDateFilter.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8;"
+    );
 
+    searchField.setPrefWidth(220);
+    categoryFilter.setPrefWidth(150);
+    fromDateFilter.setPrefWidth(150);
+    toDateFilter.setPrefWidth(150);
 
-        VBox layout =
-                new VBox(
-                        20,
-                        heading,
-                        filterRow,
-                        inputRow,
-                        actionRow,
-                        table
-                );
+    HBox filterRow =
+            new HBox(
+                    10,
+                    searchField,
+                    categoryFilter,
+                    fromDateFilter,
+                    toDateFilter
+            );
 
+    filterRow.setAlignment(Pos.CENTER_LEFT);
 
-        layout.setPadding(
-                new Insets(30)
-        );
+    VBox filterSection =
+            new VBox(
+                    10,
+                    filterTitle,
+                    filterRow
+            );
 
+    filterSection.setPadding(
+            new Insets(15)
+    );
 
-        return layout;
-    }
+    filterSection.setStyle(
+            "-fx-background-color: #F0EBFF; " +
+            "-fx-background-radius: 12; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 12;"
+    );
+
+    // -------------------------
+    // Transaction input section
+    // -------------------------
+
+    Label detailsTitle =
+            new Label("Transaction Details");
+
+    detailsTitle.setStyle(
+            "-fx-font-size: 17px; " +
+            "-fx-font-weight: bold; " +
+            "-fx-text-fill: #292735;"
+    );
+
+    datePicker.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8;"
+    );
+
+    descriptionField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 9;"
+    );
+
+    amountField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 9;"
+    );
+
+    categoryField.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #D6CEFF; " +
+            "-fx-border-radius: 8; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 9;"
+    );
+
+    // -------------------------
+    // Buttons
+    // -------------------------
+
+    addButton.setStyle(
+            "-fx-background-color: #B8E0C2; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    updateButton.setStyle(
+            "-fx-background-color: #EAE5FF; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    deleteButton.setStyle(
+            "-fx-background-color: #F0EBFF; " +
+            "-fx-text-fill: #292735; " +
+            "-fx-font-weight: bold; " +
+            "-fx-background-radius: 8; " +
+            "-fx-padding: 10 18;"
+    );
+
+    HBox inputRow =
+            new HBox(
+                    10,
+                    datePicker,
+                    descriptionField,
+                    amountField,
+                    categoryField
+            );
+
+    inputRow.setAlignment(Pos.CENTER_LEFT);
+
+    HBox buttonRow =
+            new HBox(
+                    10,
+                    addButton,
+                    updateButton,
+                    deleteButton
+            );
+
+    buttonRow.setAlignment(Pos.CENTER_LEFT);
+
+    VBox detailsSection =
+            new VBox(
+                    10,
+                    detailsTitle,
+                    inputRow,
+                    buttonRow
+            );
+
+    detailsSection.setPadding(
+            new Insets(15)
+    );
+
+    detailsSection.setStyle(
+            "-fx-background-color: #E4F3E7; " +
+            "-fx-background-radius: 12; " +
+            "-fx-border-color: #B8E0C2; " +
+            "-fx-border-radius: 12;"
+    );
+
+    // -------------------------
+    // Transaction table
+    // -------------------------
+
+    table.setStyle(
+            "-fx-background-color: #FFFFFF; " +
+            "-fx-border-color: #EAE5FF; " +
+            "-fx-border-radius: 10; " +
+            "-fx-background-radius: 10;"
+    );
+
+    table.setColumnResizePolicy(
+            TableView.CONSTRAINED_RESIZE_POLICY
+    );
+
+    // -------------------------
+    // Final layout
+    // -------------------------
+
+    VBox layout =
+            new VBox(
+                    12,
+                    heading,
+                    subtitle,
+                    filterSection,
+                    detailsSection,
+                    table
+            );
+
+    layout.setPadding(
+            new Insets(30)
+    );
+
+    layout.setSpacing(18);
+
+    layout.setStyle(
+            "-fx-background-color: #F7F5FA;"
+    );
+
+    return layout;
+}
 }

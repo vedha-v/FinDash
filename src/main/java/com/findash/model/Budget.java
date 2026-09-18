@@ -6,7 +6,6 @@ public class Budget {
     private String category;
     private double amount;
 
-    // Used when loading an existing budget from the database
     public Budget(
             int id,
             String category,
